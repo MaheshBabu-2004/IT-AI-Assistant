@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT AI Assistant</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #212121;
+    color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid #383838;
+    background: #212121;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.logo-icon {
+    background: #10a37f;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new-chat {
+    background: transparent;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: pointer;
+}
+
+.new-chat:hover {
+    background: #343434;
+}
+
+/* Main chat */
+main {
+    width: 100%;
+    max-width: 850px;
+    margin: auto;
+    padding: 25px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.welcome {
+    margin: auto 0;
+    text-align: center;
+    padding: 35px 0;
+}
+
+.welcome h1 {
+    font-size: 35px;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+.welcome p {
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+/* Suggestions */
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 650px;
+    margin: auto;
+}
+
+.suggestion {
+    background: transparent;
+    color: white;
+    text-align: left;
+    border: 1px solid #505050;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+}
+
+.suggestion:hover {
+    background: #303030;
+}
+
+.suggestion strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.suggestion span {
+    color: #aaa;
+    font-size: 13px;
+}
+
+/* Conversation */
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding-bottom: 30px;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.user-avatar {
+    background: #555;
+}
+
+.bot-avatar {
+    background: #10a37f;
+}
+
+.message-text {
+    padding-top: 4px;
+    flex: 1;
+}
+
+.typing {
+    color: #aaa;
+}
+
+/* Input area */
+.composer-area {
+    position: sticky;
+    bottom: 0;
+    padding-top: 12px;
+    background: #212121;
+}
+
+#chat-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    background: #303030;
+    border: 1px solid #505050;
+    border-radius: 25px;
+    padding: 12px 14px 12px 20px;
+}
+
+#prompt {
+    flex: 1;
+    min-width: 0;
+    max-height: 180px;
+    resize: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.5;
+    padding: 6px 0;
+}
+
+#prompt::placeholder {
+    color: #aaa;
+}
+
+#send {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    color: #222;
+    font-size: 23px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#send:hover {
+    background: #10a37f;
+    color: white;
+}
+
+#send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.disclaimer {
+    text-align: center;
+    color: #999;
+    font-size: 11px;
+    padding: 12px 0;
+    line-height: 1.5;
+}
+
+.error {
+    color: #ffaaa0;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Mobile support */
+@media (max-width: 550px) {
+    header {
+        padding: 0 12px;
+    }
+
+    main {
+        padding: 18px 12px;
+    }
+
+    .welcome h1 {
+        font-size: 27px;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">✳</div>
+            <span>IT AI Assistant</span>
+        </div>
+
+        <button class="new-chat" id="newChat">
+            + New chat
+        </button>
+    </header>
+
+    <main>
+        <section class="welcome" id="welcome">
+            <h1>What can I help with?</h1>
+            <p>Your AI partner for IT support and troubleshooting.</p>
+
+            <div class="suggestions">
+                <button class="suggestion"
+                    data-prompt="Hi! Introduce yourself.">
+                    <strong>👋 Say hello</strong>
+                    <span>Meet your IT assistant</span>
+                </button>
+
+                <button class="suggestion"
+                    data-prompt="My laptop is running slowly. Help me troubleshoot it.">
+                    <strong>💻 Slow laptop</strong>
+                    <span>Find common performance issues</span>
+                </button>
+
+                <button class="suggestion"
+                    data-prompt="My printer is not printing. How can I fix it?">
+                    <strong>🖨️ Printer issue</strong>
+                    <span>Fix common printing problems</span>
+                </button>
+
+                <button class="suggestion"
+                    data-prompt="My computer has no internet connection.">
+                    <strong>🌐 Network problem</strong>
+                    <span>Troubleshoot connectivity</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="messages" aria-live="polite"></section>
+
+        <div class="composer-area">
+            <form id="chat-form">
+                <textarea
+                    id="prompt"
+                    rows="1"
+                    placeholder="Message IT AI Assistant..."
+                    aria-label="Type your message"
+                    required></textarea>
+
+                <button id="send" type="submit" aria-label="Send">
+                    ↑
+                </button>
+            </form>
+
+            <div class="disclaimer">
+                AI can make mistakes. Never enter passwords, API keys,
+                MFA codes, or confidential company information.
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const form = document.getElementById("chat-form");
+const promptBox = document.getElementById("prompt");
+const messagesBox = document.getElementById("messages");
+const welcome = document.getElementById("welcome");
+const sendButton = document.getElementById("send");
+
+let conversation = [];
+let busy = false;
+
+function addMessage(role, text, extraClass = "") {
+    const row = document.createElement("div");
+    row.className = "message";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar " +
+        (role === "user" ? "user-avatar" : "bot-avatar");
+
+    avatar.textContent = role === "user" ? "Y" : "✳";
+
+    const content = document.createElement("div");
+    content.className = "message-text " + extraClass;
+    content.textContent = text;
+
+    row.appendChild(avatar);
+    row.appendChild(content);
+    messagesBox.appendChild(row);
+
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+    });
+
+    return content;
+}
+
+async function sendMessage(text) {
+    const question = text.trim();
+
+    if (!question || busy) return;
+
+    welcome.classList.add("hidden");
+
+    addMessage("user", question);
+
+    conversation.push({
+        role: "user",
+        content: question
+    });
+
+    promptBox.value = "";
+    promptBox.style.height = "auto";
+
+    busy = true;
+    sendButton.disabled = true;
+
+    const typing = addMessage(
+        "assistant",
+        "Thinking...",
+        "typing"
+    );
+
+    try {
+        // Connects to your secure Node.js backend.
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messages: conversation.slice(-20)
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Unable to get an AI response."
+            );
+        }
+
+        typing.textContent = data.reply;
+        typing.classList.remove("typing");
+
+        conversation.push({
+            role: "assistant",
+            content: data.reply
+        });
+
+    } catch (error) {
+        typing.textContent =
+            "Unable to connect to the AI service. " +
+            "Please check that the backend is running and configured.";
+
+        typing.classList.remove("typing");
+        typing.classList.add("error");
+
+        // Remove the unanswered question from API history.
+        conversation.pop();
+
+        console.error(error);
+    } finally {
+        busy = false;
+        sendButton.disabled = false;
+        promptBox.focus();
+
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+}
+
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+    sendMessage(promptBox.value);
+});
+
+promptBox.addEventListener("input", function() {
+    promptBox.style.height = "auto";
+    promptBox.style.height =
+        Math.min(promptBox.scrollHeight, 180) + "px";
+});
+
+promptBox.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+    }
+});
+
+document.querySelectorAll("[data-prompt]").forEach(function(button) {
+    button.addEventListener("click", function() {
+        sendMessage(button.dataset.prompt);
+    });
+});
+
+document.getElementById("newChat").addEventListener("click", function() {
+    conversation = [];
+    messagesBox.replaceChildren();
+    welcome.classList.remove("hidden");
+    promptBox.value = "";
+    promptBox.focus();
+});
+</script>
+
+</body>
+</html>
